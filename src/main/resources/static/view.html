@@ -3,84 +3,238 @@
 <head>
     <meta charset="UTF-8">
     <title>글 보기 - Sorbet 게시판</title>
-    <link rel="stylesheet" href="/css/style.css">
+    <link rel="stylesheet" href="/css/common.css">
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin: 40px;
-            background-color: #fff;
+            margin: 0;
+            padding: 40px;
+            background-color: #FDF9F2; /* 배경색 변경 */
         }
 
         .container {
             max-width: 800px;
             margin: auto;
+            padding: 30px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+        }
+
+        .top-buttons {
+            text-align: right;
+            margin-bottom: 20px;
         }
 
         .tag {
             display: inline-block;
-            background-color: #eee;
-            color: #333;
-            font-size: 12px;
-            padding: 2px 6px;
-            border-radius: 4px;
-            margin-right: 4px;
+            background-color: #E8F5E9;
+            border: 1px solid #A5D6A7;
+            color: #388E3C;
+            font-size: 0.8em;
+            padding: 4px 10px;
+            border-radius: 15px;
+            margin-right: 6px;
             margin-bottom: 8px;
+            font-weight: 500;
         }
 
         .tags-top {
-            font-size: 12px;
-            color: #777;
+            margin-top: 15px;
+            font-size: 0.9em;
+            color: #999;
             margin-bottom: 5px;
         }
 
         h1 {
-            color: #000; /* 제목 검정색 */
+            color: #000;
             font-size: 28px;
             margin-top: 10px;
-            margin-bottom: 40px; /* 본문과의 여백 2배 */
+            margin-bottom: 20px; /* 본문과의 여백 조정 */
+        }
+
+        .post-actions { /* 글 수정/삭제 버튼을 위한 스타일 */
+            text-align: right;
+            margin-bottom: 40px;
         }
 
         .meta {
             margin-bottom: 20px;
             color: #555;
+            font-size: 0.9em;
         }
 
         .content {
             white-space: pre-wrap;
             margin-bottom: 40px;
+            overflow-y: auto;
+            resize: none;
+            max-height: 400px;
+            border: 1px solid #E0E0E0;
+            padding: 15px;
+            border-radius: 8px;
+            background-color: #fdfdfd;
+            line-height: 1.6;
+            color: #333;
         }
 
         .comment-box {
             margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid #eee;
         }
 
-        textarea {
-            width: 100%;
+        .comment-box h3 {
+            margin-top: 0;
+            color: #444;
+            font-size: 20px;
+            margin-bottom: 15px;
+        }
+
+        .comment-input-area {
+            display: flex;
+            gap: 10px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .comment-box textarea {
+            flex-grow: 1;
+            min-height: 60px;
+            max-height: 150px;
+            overflow-y: auto;
+            resize: vertical;
             padding: 10px;
             font-size: 14px;
             border: 1px solid #ccc;
             border-radius: 6px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.05);
         }
 
-        .btn-submit {
-            margin-top: 10px;
-            padding: 8px 16px;
-            background-color: #333;
-            color: white;
-            border: none;
+        .comment-box textarea:focus {
+            border-color: #4CAF50;
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(76, 175, 80, 0.2);
+        }
+
+        .comment-box .btn-submit {
+            flex-shrink: 0;
+            padding: 10px 20px;
+            background-color: #666;
+            font-weight: normal;
+            border-radius: 6px;
+        }
+
+        .comment-box .btn-submit:hover {
+            background-color: #444;
+            transform: none;
+        }
+
+        .comment-list {
+            margin-top: 20px;
+            border-top: 1px solid #eee;
+            padding-top: 20px;
+        }
+
+        .comment-item {
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+            margin-bottom: 0;
+        }
+
+        .comment-item:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+
+        .comment-author {
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 5px;
+        }
+
+        .comment-date {
+            font-size: 0.8em;
+            color: #999;
+            margin-left: 10px;
+        }
+
+        .comment-text {
+            color: #666;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .comment-actions { /* 댓글 수정/삭제 버튼 스타일 */
+            text-align: right;
+            margin-top: 5px;
+        }
+
+        .comment-actions .btn-small {
+            padding: 5px 10px;
+            font-size: 0.75em;
+            margin-left: 5px;
+            background-color: #e0e0e0;
+            color: #555;
             border-radius: 4px;
             cursor: pointer;
+            border: none;
+            transition: background-color 0.2s ease;
         }
 
-        .btn-submit:hover {
-            background-color: #555;
+        .comment-actions .btn-small:hover {
+            background-color: #d0d0d0;
+        }
+
+        .comment-actions .btn-delete {
+            background-color: #f44336; /* 삭제 버튼은 빨간색 */
+            color: white;
+        }
+
+        .comment-actions .btn-delete:hover {
+            background-color: #d32f2f;
+        }
+
+        /* 공통 버튼 스타일 (common.css와 겹치지 않도록 주의하거나 common.css에 추가) */
+        .btn {
+            display: inline-block;
+            background-color: #4CAF50;
+            color: #ffffff;
+            padding: 10px 20px;
+            font-weight: bold;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            font-size: 0.9em;
+            margin-left: 8px; /* 버튼 사이 간격 */
+        }
+
+        .btn:hover {
+            background-color: #388E3C;
+        }
+
+        .btn-delete-post {
+            background-color: #f44336;
+        }
+        .btn-delete-post:hover {
+            background-color: #d32f2f;
         }
     </style>
 </head>
 <body>
 <div class="container">
+    <div class="top-buttons">
+        <button class="btn-back" onclick="location.href='main.html'">홈으로 가기</button>
+    </div>
+
     <div class="tags-top" id="tags"></div>
     <h1 id="title">제목</h1>
+
+    <div class="post-actions">
+        <button class="btn" id="editPostBtn">수정</button>
+        <button class="btn btn-delete-post" id="deletePostBtn">삭제</button>
+    </div>
 
     <div class="meta">
         작성자: <span id="writer">작성자</span> |
@@ -90,40 +244,150 @@
 
     <div class="content" id="content">본문 내용</div>
 
-    <!-- 댓글창 추가 -->
     <div class="comment-box">
         <h3>댓글</h3>
-        <textarea rows="4" placeholder="댓글을 입력하세요..."></textarea>
-        <button class="btn-submit">댓글 등록</button>
+        <div class="comment-input-area">
+            <textarea id="commentTextarea" rows="4" placeholder="댓글을 입력하세요..."></textarea>
+            <button class="btn-submit" id="submitComment">댓글 등록</button>
+        </div>
+        <div class="comment-list" id="commentList">
+        </div>
     </div>
 </div>
 
 <script>
+    // URL 파라미터에서 데이터 가져오기
+    function getQueryParams() {
+        const params = {};
+        window.location.search.substring(1).split('&').forEach(param => {
+            const [key, value] = param.split('=');
+            params[key] = decodeURIComponent(value || '');
+        });
+        return params;
+    }
+
+    // 페이지 로드 시 데이터 설정
     window.addEventListener("DOMContentLoaded", () => {
-        const params = new URLSearchParams(window.location.search);
+        const params = getQueryParams();
 
-        const title = params.get("title");
-        const writer = params.get("writer");
-        const consultant = params.get("consultant");
-        const category = params.get("category");
-        const content = params.get("content");
-        const tags = params.get("tags");
-
-        if (title) document.getElementById("title").textContent = title;
-        if (writer) document.getElementById("writer").textContent = writer;
-        if (consultant) document.getElementById("consultant").textContent = consultant;
-        if (category) document.getElementById("category").textContent = category;
-        if (content) document.getElementById("content").textContent = content;
-
+        // 게시글 내용 설정
+        const titleElement = document.getElementById("title");
+        const writerElement = document.getElementById("writer");
+        const consultantElement = document.getElementById("consultant");
+        const categoryElement = document.getElementById("category");
+        const contentElement = document.getElementById("content");
         const tagsElement = document.getElementById("tags");
-        if (tags) {
-            tags.split(",").forEach(tag => {
+
+        if (params.title) titleElement.textContent = params.title;
+        if (params.writer) writerElement.textContent = params.writer;
+        if (params.consultant) consultantElement.textContent = params.consultant;
+        if (params.category) categoryElement.textContent = params.category;
+        if (params.content) contentElement.textContent = params.content;
+
+        // 태그 설정
+        if (params.tags) {
+            tagsElement.innerHTML = '';
+            params.tags.split(",").forEach(tag => {
                 const span = document.createElement("span");
                 span.className = "tag";
                 span.textContent = tag.trim();
                 tagsElement.appendChild(span);
             });
+        } else {
+            tagsElement.style.display = 'none';
         }
+
+        // --- 글 수정/삭제 기능 (클라이언트 측 예시) ---
+        const editPostBtn = document.getElementById('editPostBtn');
+        const deletePostBtn = document.getElementById('deletePostBtn');
+
+        // 게시글 수정 버튼 클릭 시 (실제로는 수정 페이지로 이동하거나 모달 띄움)
+        editPostBtn.addEventListener('click', () => {
+            alert('글을 수정합니다. (실제 수정 페이지로 이동)');
+            // 예: location.href = `edit.html?postId=${params.id}&title=${params.title}&content=${params.content}`;
+        });
+
+        // 게시글 삭제 버튼 클릭 시 (실제로는 서버에 삭제 요청)
+        deletePostBtn.addEventListener('click', () => {
+            if (confirm('정말로 이 글을 삭제하시겠습니까?')) {
+                alert('글을 삭제했습니다. (실제 서버 삭제 요청 및 목록으로 이동)');
+                // 예: fetch(`/api/posts/${params.id}`, { method: 'DELETE' })
+                //      .then(response => { if (response.ok) location.href = 'main.html'; });
+                location.href = 'main.html'; // 예시로 삭제 후 홈으로 이동
+            }
+        });
+
+
+        // --- 댓글 기능 구현 (클라이언트 측 예시) ---
+        const commentTextarea = document.getElementById('commentTextarea');
+        const submitCommentButton = document.getElementById('submitComment');
+        const commentList = document.getElementById('commentList');
+
+        // 댓글 제출 이벤트
+        submitCommentButton.addEventListener('click', () => {
+            const commentText = commentTextarea.value.trim();
+            if (commentText) {
+                // 실제 환경에서는 이 데이터를 서버로 전송해야 함
+                // 예: fetch('/api/comments', { method: 'POST', body: JSON.stringify({ postId: currentPostId, comment: commentText }) })
+
+                // 임시로 클라이언트 측에서 댓글 추가
+                const newCommentItem = document.createElement('div');
+                newCommentItem.className = 'comment-item';
+                newCommentItem.dataset.commentId = Date.now(); // 고유 ID 부여 (예시)
+
+                const now = new Date();
+                const dateString = `${now.getFullYear()}.${(now.getMonth() + 1).toString().padStart(2, '0')}.${now.getDate().toString().padStart(2, '0')} ${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+                const author = "현재 사용자";
+
+                newCommentItem.innerHTML = `
+                    <div class="comment-author">${author} <span class="comment-date">${dateString}</span></div>
+                    <div class="comment-text">${commentText.replace(/\n/g, '<br>')}</div>
+                    <div class="comment-actions">
+                        <button class="btn-small btn-edit-comment">수정</button>
+                        <button class="btn-small btn-delete btn-delete-comment">삭제</button>
+                    </div>
+                `;
+                commentList.prepend(newCommentItem); // 최신 댓글을 맨 위에 추가
+
+                commentTextarea.value = ''; // 입력창 비우기
+                commentList.scrollTop = 0; // 스크롤을 맨 위로 (선택 사항)
+            } else {
+                alert("댓글 내용을 입력해주세요.");
+            }
+        });
+
+        // --- 댓글 수정/삭제 기능 (클라이언트 측 예시) ---
+        commentList.addEventListener('click', (event) => {
+            const target = event.target;
+            const commentItem = target.closest('.comment-item'); // 클릭된 버튼의 부모 댓글 아이템 찾기
+
+            if (!commentItem) return; // 댓글 아이템이 아니면 무시
+
+            const commentId = commentItem.dataset.commentId;
+            const commentTextElement = commentItem.querySelector('.comment-text');
+
+            // 댓글 수정 버튼 클릭 시
+            if (target.classList.contains('btn-edit-comment')) {
+                const currentText = commentTextElement.innerText;
+                const newText = prompt('댓글을 수정해주세요:', currentText);
+                if (newText !== null && newText.trim() !== '') {
+                    commentTextElement.innerText = newText.trim();
+                    alert(`댓글 ID ${commentId} 수정 완료 (실제 서버 업데이트 필요)`);
+                    // 실제: fetch(`/api/comments/${commentId}`, { method: 'PUT', body: JSON.stringify({ comment: newText }) })
+                } else if (newText !== null) { // 사용자가 취소하지 않고 빈 값 입력 시
+                    alert('댓글 내용은 비워둘 수 없습니다.');
+                }
+            }
+
+            // 댓글 삭제 버튼 클릭 시
+            if (target.classList.contains('btn-delete-comment')) {
+                if (confirm(`정말로 이 댓글(ID: ${commentId})을 삭제하시겠습니까?`)) {
+                    commentItem.remove(); // DOM에서 댓글 제거
+                    alert(`댓글 ID ${commentId} 삭제 완료 (실제 서버 삭제 필요)`);
+                    // 실제: fetch(`/api/comments/${commentId}`, { method: 'DELETE' })
+                }
+            }
+        });
     });
 </script>
 </body>
